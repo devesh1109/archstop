@@ -44,28 +44,14 @@ export default function DemoProtection() {
       }
     };
 
-    // Detect dev tools open (console size trick — not foolproof)
-    const detectDevTools = () => {
-      const threshold = 160;
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      if (widthThreshold || heightThreshold) {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:-apple-system,sans-serif;text-align:center;padding:40px;background:#f2f2f7;"><div><h1 style="font-size:24px;margin-bottom:8px;">Demo Access Only</h1><p style="color:#8e8e93;">Please close developer tools to continue viewing the demo.</p></div></div>';
-      }
-    };
-
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('dragstart', handleDragStart);
-
-    // Check periodically for dev tools
-    const devToolsInterval = setInterval(detectDevTools, 2000);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('dragstart', handleDragStart);
-      clearInterval(devToolsInterval);
     };
   }, []);
 
