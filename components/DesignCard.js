@@ -10,7 +10,7 @@ export default function DesignCard({ design, index = 0 }) {
   const vendor = getVendorById(design.vendorId);
 
   return (
-    <div className={`design-card glass-card animate-fadeInUp stagger-${(index % 4) + 1}`}>
+    <div className={`design-card animate-fadeInUp stagger-${(index % 4) + 1}`}>
       <Link href={`/design/${design.id}`} className="design-card-image-wrap">
         <Image
           src={design.image}
@@ -20,16 +20,15 @@ export default function DesignCard({ design, index = 0 }) {
           className="design-card-image"
         />
         {design.originalPrice && (
-          <span className="design-card-sale">SALE</span>
+          <span className="design-card-sale">
+            {Math.round((1 - design.price / design.originalPrice) * 100)}% OFF
+          </span>
         )}
-        <div className="design-card-overlay">
-          <span className="btn btn-primary btn-sm">View Details</span>
-        </div>
       </Link>
 
       <div className="design-card-body">
         <div className="design-card-category">
-          <span className="badge">{design.category.replace('-', ' ')}</span>
+          <span className="badge">{design.category.replace(/-/g, ' ')}</span>
         </div>
 
         <Link href={`/design/${design.id}`}>
@@ -43,12 +42,12 @@ export default function DesignCard({ design, index = 0 }) {
 
         <div className="design-card-meta">
           <div className="design-card-rating">
-            <Star size={14} fill="var(--accent)" stroke="var(--accent)" />
+            <Star size={13} fill="var(--accent)" stroke="var(--accent)" />
             <span>{design.rating}</span>
             <span className="review-count">({design.reviewCount})</span>
           </div>
           <div className="design-card-formats">
-            {design.formats.slice(0, 3).map(f => (
+            {design.formats.slice(0, 2).map(f => (
               <span key={f} className="format-tag">{f}</span>
             ))}
           </div>
@@ -62,20 +61,27 @@ export default function DesignCard({ design, index = 0 }) {
             )}
           </div>
           <button
-            className="btn btn-primary btn-sm"
+            className="design-card-cart-btn"
             onClick={(e) => { e.preventDefault(); addItem(design); }}
             aria-label="Add to cart"
           >
-            <ShoppingCart size={14} />
+            <ShoppingCart size={15} />
           </button>
         </div>
       </div>
 
       <style jsx>{`
         .design-card {
+          background: var(--bg-card);
+          border-radius: var(--radius-md);
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          box-shadow: var(--ios-card-shadow);
+          transition: transform 0.2s ease;
+        }
+        .design-card:active {
+          transform: scale(0.97);
         }
         .design-card-image-wrap {
           position: relative;
@@ -86,40 +92,25 @@ export default function DesignCard({ design, index = 0 }) {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform var(--transition-slow);
-        }
-        .design-card:hover .design-card-image-wrap :global(img) {
-          transform: scale(1.05);
         }
         .design-card-sale {
           position: absolute;
-          top: var(--space-md);
-          left: var(--space-md);
-          background: var(--error);
+          top: 8px;
+          left: 8px;
+          background: #ff3b30;
           color: white;
           font-size: 11px;
           font-weight: 700;
-          padding: 3px 10px;
+          padding: 3px 8px;
           border-radius: var(--radius-full);
           z-index: 2;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.02em;
         }
-        .design-card-overlay {
-          position: absolute;
-          inset: 0;
-          background: rgba(0,0,0,0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity var(--transition-base);
-        }
-        .design-card:hover .design-card-overlay { opacity: 1; }
         .design-card-body {
-          padding: var(--space-md);
+          padding: 12px;
           display: flex;
           flex-direction: column;
-          gap: var(--space-sm);
+          gap: 6px;
           flex: 1;
         }
         .design-card-category { text-transform: capitalize; }
@@ -128,43 +119,41 @@ export default function DesignCard({ design, index = 0 }) {
           font-size: var(--text-base);
           font-weight: 600;
           line-height: 1.3;
-          transition: color var(--transition-fast);
+          letter-spacing: -0.01em;
+          color: var(--text-primary);
         }
-        .design-card-title:hover { color: var(--accent); }
         .design-card-vendor {
           display: flex;
           align-items: center;
-          gap: var(--space-xs);
+          gap: 4px;
           font-size: var(--text-xs);
           color: var(--text-muted);
-          transition: color var(--transition-fast);
         }
-        .design-card-vendor:hover { color: var(--accent); }
-        .vendor-avatar-sm { font-size: var(--text-base); }
+        .vendor-avatar-sm { font-size: var(--text-sm); }
         .design-card-meta {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: var(--space-sm);
+          gap: 6px;
           margin-top: auto;
         }
         .design-card-rating {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 3px;
           font-size: var(--text-sm);
           font-weight: 600;
         }
-        .review-count { color: var(--text-muted); font-weight: 400; }
+        .review-count { color: var(--text-muted); font-weight: 400; font-size: var(--text-xs); }
         .design-card-formats {
           display: flex;
-          gap: 4px;
+          gap: 3px;
         }
         .format-tag {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 600;
-          padding: 2px 6px;
-          border-radius: var(--radius-sm);
+          padding: 2px 5px;
+          border-radius: 4px;
           background: var(--bg-tertiary);
           color: var(--text-muted);
           text-transform: uppercase;
@@ -174,16 +163,38 @@ export default function DesignCard({ design, index = 0 }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: var(--space-sm);
-          border-top: 1px solid var(--border);
-          margin-top: var(--space-sm);
+          padding-top: 8px;
+          border-top: 0.5px solid var(--ios-separator-light);
+          margin-top: 6px;
         }
         .design-card-price {
           display: flex;
           align-items: baseline;
-          gap: var(--space-xs);
+          gap: 4px;
         }
-        .design-card-price .price { font-size: var(--text-lg); }
+        .design-card-price :global(.price) { font-size: var(--text-lg); }
+        .design-card-cart-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: var(--radius-full);
+          background: var(--ios-tint);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.15s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .design-card-cart-btn:active {
+          transform: scale(0.88);
+        }
+
+        @media (max-width: 768px) {
+          .design-card-body { padding: 10px; gap: 4px; }
+          .design-card-title { font-size: var(--text-sm); }
+          .design-card-price :global(.price) { font-size: var(--text-base); }
+          .design-card-cart-btn { width: 30px; height: 30px; }
+        }
       `}</style>
     </div>
   );

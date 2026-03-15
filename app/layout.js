@@ -1,29 +1,51 @@
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TabBar from '@/components/TabBar';
 import { CartProvider } from '@/lib/CartContext';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 
 export const metadata = {
-  title: 'UrbanMarket — Premium Architectural Resources Marketplace',
-  description: 'The premier marketplace for architects and designers to buy and sell house plans, interior layouts, 3D models, CAD files, Revit templates, and more.',
-  keywords: 'architecture, house plans, CAD files, 3D models, interior design, blueprints, Revit, construction drawings',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover',
+  title: 'ArchStop — Architectural Design Marketplace',
+  description: 'Premium marketplace for architects and designers. Buy and sell house plans, 3D models, CAD files, Revit templates, and more.',
+  keywords: 'architecture, house plans, CAD files, 3D models, interior design, blueprints, Revit',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ArchStop',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="apple-touch-icon" href="/images/hero_banner.png" />
+      </head>
       <body>
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
               <Navbar />
-              <main style={{ paddingTop: 'var(--nav-height)' }}>
+              <main>
                 {children}
               </main>
               <Footer />
+              <TabBar />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

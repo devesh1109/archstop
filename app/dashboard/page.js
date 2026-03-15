@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { Upload, Package, DollarSign, Eye, TrendingUp, Download, Star, Plus, BarChart3 } from 'lucide-react';
+import Link from 'next/link';
+import { Upload, Package, DollarSign, Eye, TrendingUp, Download, Star, Plus, BarChart3, ChevronLeft } from 'lucide-react';
 import s from './page.module.css';
 
 const mockListings = [
@@ -20,10 +21,22 @@ export default function DashboardPage() {
 
   return (
     <div className={s.dashboard}>
+      {/* iOS Nav */}
+      <div className={s.iosNav}>
+        <Link href="/" className="ios-nav-back">
+          <ChevronLeft size={22} />
+          <span>Home</span>
+        </Link>
+        <span className="ios-nav-title">Dashboard</span>
+        <button className={s.iosNavAction} onClick={() => setShowUpload(!showUpload)}>
+          <Plus size={22} />
+        </button>
+      </div>
+
       <div className="container">
         <div className={s.dashHeader}>
           <div>
-            <h1 className={s.dashTitle}>Vendor Dashboard</h1>
+            <h1 className={s.dashTitle}>Dashboard</h1>
             <p className={s.dashSub}>Welcome back, Studio Arcana</p>
           </div>
           <button className="btn btn-primary" onClick={() => setShowUpload(!showUpload)}>
@@ -32,77 +45,80 @@ export default function DashboardPage() {
         </div>
 
         {showUpload && (
-          <div className={`${s.uploadForm} glass-card animate-fadeInUp`}>
-            <h3 className={s.formHeading}>
-              <Upload size={18} /> Upload New Design
-            </h3>
-            <div className={s.formGrid}>
-              <div className={s.formGroup}>
-                <label>Design Title</label>
-                <input type="text" className="input" placeholder="e.g. Modern Beach House Plan" />
+          <div className={`${s.uploadForm} ios-group animate-fadeInUp`}>
+            <div style={{ padding: 16 }}>
+              <h3 className={s.formHeading}>
+                <Upload size={18} /> Upload New Design
+              </h3>
+              <div className={s.formGrid}>
+                <div className={s.formGroup}>
+                  <label>Design Title</label>
+                  <input type="text" className="input" placeholder="e.g. Modern Beach House Plan" />
+                </div>
+                <div className={s.formGroup}>
+                  <label>Category</label>
+                  <select className="input">
+                    <option>House Plans</option>
+                    <option>Interior Layouts</option>
+                    <option>Landscape Designs</option>
+                    <option>Apartment Blueprints</option>
+                    <option>Office Architecture</option>
+                    <option>3D Models</option>
+                    <option>CAD Files</option>
+                    <option>Revit Files</option>
+                    <option>Construction Drawings</option>
+                  </select>
+                </div>
+                <div className={s.formGroup}>
+                  <label>Price ($)</label>
+                  <input type="number" className="input" placeholder="199" />
+                </div>
+                <div className={s.formGroup}>
+                  <label>File Formats</label>
+                  <input type="text" className="input" placeholder="PDF, DWG, RVT" />
+                </div>
               </div>
-              <div className={s.formGroup}>
-                <label>Category</label>
-                <select className="input">
-                  <option>House Plans</option>
-                  <option>Interior Layouts</option>
-                  <option>Landscape Designs</option>
-                  <option>Apartment Blueprints</option>
-                  <option>Office Architecture</option>
-                  <option>3D Models</option>
-                  <option>CAD Files</option>
-                  <option>Revit Files</option>
-                  <option>Construction Drawings</option>
-                </select>
+              <div className={s.formGroup} style={{ marginTop: 12 }}>
+                <label>Description</label>
+                <textarea className="input" rows={3} placeholder="Describe your design..." />
               </div>
-              <div className={s.formGroup}>
-                <label>Price ($)</label>
-                <input type="number" className="input" placeholder="199" />
+              <div className={s.uploadDrop}>
+                <Upload size={28} color="var(--ios-tint)" />
+                <p className={s.uploadDropText}>Drag & drop or tap to upload</p>
+                <p className={s.uploadDropHint}>PDF, DWG, RVT, SKP, 3DS, BLEND — Max 100MB</p>
               </div>
-              <div className={s.formGroup}>
-                <label>File Formats</label>
-                <input type="text" className="input" placeholder="PDF, DWG, RVT" />
+              <div className={s.formActions}>
+                <button className="btn btn-primary">Publish</button>
+                <button className="btn btn-secondary" onClick={() => setShowUpload(false)}>Cancel</button>
               </div>
-            </div>
-            <div className={s.formGroup} style={{ marginTop: 16 }}>
-              <label>Description</label>
-              <textarea className="input" rows={3} placeholder="Describe your design..." />
-            </div>
-            <div className={`${s.uploadDrop} glass-card`}>
-              <Upload size={32} color="var(--accent)" />
-              <p className={s.uploadDropText}>Drag & drop files or click to upload</p>
-              <p className={s.uploadDropHint}>PDF, DWG, RVT, SKP, 3DS, BLEND — Max 100MB</p>
-            </div>
-            <div className={s.formActions}>
-              <button className="btn btn-primary">Publish Design</button>
-              <button className="btn btn-secondary" onClick={() => setShowUpload(false)}>Cancel</button>
             </div>
           </div>
         )}
 
         <div className={s.statsGrid}>
           {[
-            { icon: DollarSign, label: 'Total Revenue', value: '$48,290', change: '+12.5%', color: 'var(--success)' },
-            { icon: Package, label: 'Active Listings', value: '87', change: '+3', color: 'var(--accent)' },
-            { icon: Download, label: 'Total Downloads', value: '2,340', change: '+156', color: 'var(--info)' },
-            { icon: Eye, label: 'Total Views', value: '18.4K', change: '+2.1K', color: 'var(--warning)' },
+            { icon: DollarSign, label: 'Revenue', value: '$48,290', change: '+12.5%', color: 'var(--success)' },
+            { icon: Package, label: 'Listings', value: '87', change: '+3', color: 'var(--ios-tint)' },
+            { icon: Download, label: 'Downloads', value: '2,340', change: '+156', color: 'var(--info)' },
+            { icon: Eye, label: 'Views', value: '18.4K', change: '+2.1K', color: 'var(--warning)' },
           ].map(({ icon: Icon, label, value, change, color }) => (
-            <div key={label} className={`${s.statCard} glass-card`}>
-              <div className={s.statIcon} style={{ background: `${color}15`, color }}><Icon size={20} /></div>
+            <div key={label} className={s.statCard}>
+              <div className={s.statIcon} style={{ background: `${color}15`, color }}><Icon size={18} /></div>
               <div className={s.statInfo}>
                 <span className={s.statLabel}>{label}</span>
                 <span className={s.statValue}>{value}</span>
               </div>
-              <span className={s.statChange} style={{ color }}><TrendingUp size={12} /> {change}</span>
+              <span className={s.statChange} style={{ color }}><TrendingUp size={11} /> {change}</span>
             </div>
           ))}
         </div>
 
-        <div className={s.dashTabs}>
+        {/* iOS Segmented Control instead of tabs */}
+        <div className="ios-segmented" style={{ marginBottom: 16 }}>
           {['overview', 'listings', 'analytics'].map(t => (
             <button
               key={t}
-              className={`${s.dashTab} ${activeTab === t ? s.dashTabActive : ''}`}
+              className={`ios-segment ${activeTab === t ? 'ios-segment-active' : ''}`}
               onClick={() => setActiveTab(t)}
             >
               {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -112,34 +128,38 @@ export default function DashboardPage() {
 
         {activeTab === 'overview' && (
           <div className={s.dashContent}>
-            <div className={`${s.chartCard} glass-card`}>
-              <h3 className={s.formHeading}>
-                <BarChart3 size={18} /> Monthly Sales
-              </h3>
-              <div className={s.chart}>
-                {salesData.map((val, i) => (
-                  <div key={i} className={s.chartBarWrap}>
-                    <div className={s.chartBar} style={{ height: `${(val / maxSale) * 100}%` }}>
-                      <span className={s.chartTooltip}>{val}</span>
+            <div className={`${s.chartCard} ios-group`}>
+              <div style={{ padding: 16 }}>
+                <h3 className={s.formHeading}>
+                  <BarChart3 size={18} /> Monthly Sales
+                </h3>
+                <div className={s.chart}>
+                  {salesData.map((val, i) => (
+                    <div key={i} className={s.chartBarWrap}>
+                      <div className={s.chartBar} style={{ height: `${(val / maxSale) * 100}%` }}>
+                        <span className={s.chartTooltip}>{val}</span>
+                      </div>
+                      <span className={s.chartLabel}>{months[i]}</span>
                     </div>
-                    <span className={s.chartLabel}>{months[i]}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-            <div className={`${s.recentCard} glass-card`}>
-              <h3 className={s.formHeading}>Recent Sales</h3>
+            <div className={`${s.recentCard} ios-group`}>
+              <div style={{ padding: 16 }}>
+                <h3 className={s.formHeading}>Recent Sales</h3>
+              </div>
               {[
                 { buyer: 'Alex M.', design: 'Modern Hillside Villa', amount: '$299', time: '2h ago' },
                 { buyer: 'Sarah K.', design: 'Urban Loft Complex', amount: '$499', time: '5h ago' },
                 { buyer: 'James L.', design: 'Minimalist Tiny House', amount: '$99', time: '1d ago' },
                 { buyer: 'Emma R.', design: 'Luxury Penthouse', amount: '$399', time: '2d ago' },
               ].map((sale, i) => (
-                <div key={i} className={s.saleRow}>
-                  <span className={s.saleBuyer}>{sale.buyer}</span>
-                  <span className={s.saleDesign}>{sale.design}</span>
-                  <span className={s.saleAmount}>{sale.amount}</span>
-                  <span className={s.saleTime}>{sale.time}</span>
+                <div key={i} className="ios-row" style={{ fontSize: 'var(--text-sm)' }}>
+                  <span style={{ fontWeight: 600, minWidth: 60 }}>{sale.buyer}</span>
+                  <span style={{ color: 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sale.design}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--success)' }}>{sale.amount}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginLeft: 8 }}>{sale.time}</span>
                 </div>
               ))}
             </div>
@@ -147,7 +167,7 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'listings' && (
-          <div className={`${s.listingsTable} glass-card`}>
+          <div className="ios-group" style={{ overflow: 'auto' }}>
             <div className={s.tableHeader}>
               <span>Design</span><span>Category</span><span>Price</span><span>Sales</span><span>Rating</span><span>Status</span>
             </div>
@@ -165,10 +185,12 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'analytics' && (
-          <div className={`${s.analyticsPlaceholder} glass-card`}>
-            <BarChart3 size={48} color="var(--text-muted)" />
-            <h3 className={s.analyticsTitle}>Advanced Analytics</h3>
-            <p className={s.analyticsDesc}>Detailed analytics with traffic sources, conversion rates, and customer demographics coming soon.</p>
+          <div className={`${s.analyticsPlaceholder} ios-group`}>
+            <div style={{ padding: 'var(--space-2xl)', textAlign: 'center' }}>
+              <BarChart3 size={44} color="var(--text-muted)" />
+              <h3 className={s.analyticsTitle}>Advanced Analytics</h3>
+              <p className={s.analyticsDesc}>Detailed analytics with traffic sources, conversion rates, and customer demographics coming soon.</p>
+            </div>
           </div>
         )}
       </div>

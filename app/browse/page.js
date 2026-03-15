@@ -1,7 +1,8 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import DesignCard from '@/components/DesignCard';
 import { designs, categories } from '@/lib/data';
 import { Suspense, useEffect } from 'react';
@@ -51,199 +52,239 @@ function BrowseContent() {
 
   return (
     <div className="browse-page">
+      {/* iOS inline nav for mobile */}
+      <div className="ios-browse-nav">
+        <Link href="/" className="ios-nav-back">
+          <ChevronLeft size={22} />
+          <span>Home</span>
+        </Link>
+        <span className="ios-nav-title">Browse</span>
+        <div style={{ width: 60 }} />
+      </div>
+
       <div className="container">
+        {/* Large title */}
         <div className="browse-header">
-          <h1 className="browse-title">
-            {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name || 'Browse' : 'Browse All Designs'}
+          <h1 className="ios-page-title">
+            {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name || 'Browse' : 'Browse'}
           </h1>
-          <p className="browse-subtitle">{filtered.length} designs found</p>
+          <p className="ios-page-subtitle">{filtered.length} designs found</p>
         </div>
 
+        {/* iOS search + sort row */}
         <div className="browse-toolbar">
-          <div className="search-bar">
-            <Search size={18} />
+          <div className="ios-search-bar" style={{ flex: 1 }}>
+            <Search size={16} />
             <input
-              type="text" placeholder="Search designs, vendors, file types..."
+              type="text" placeholder="Search designs..."
               value={query} onChange={e => setQuery(e.target.value)}
-              className="search-input"
             />
             {query && <button onClick={() => setQuery('')} className="search-clear"><X size={16} /></button>}
           </div>
-          <div className="toolbar-right">
-            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="sort-select input">
-              <option value="popular">Most Popular</option>
-              <option value="newest">Newest</option>
-              <option value="price-low">Price: Low → High</option>
-              <option value="price-high">Price: High → Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
-            <button className="btn btn-secondary filter-toggle" onClick={() => setShowFilters(!showFilters)}>
-              <SlidersHorizontal size={16} /> Filters
-            </button>
-          </div>
+          <button
+            className="filter-btn"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal size={18} />
+          </button>
         </div>
 
-        <div className="browse-layout">
-          <aside className={`filters-sidebar ${showFilters ? 'show' : ''}`}>
-            <div className="filter-section">
-              <h3 className="filter-title">Category</h3>
-              <button onClick={() => setSelectedCategory('')} className={`filter-option ${!selectedCategory ? 'active' : ''}`}>All Categories</button>
-              {categories.map(c => (
-                <button key={c.id} onClick={() => setSelectedCategory(c.id)} className={`filter-option ${selectedCategory === c.id ? 'active' : ''}`}>
-                  {c.name} <span className="filter-count">{c.count}</span>
-                </button>
-              ))}
+        {/* Category pills (horizontal scroll) */}
+        <div className="category-pills">
+          <button
+            onClick={() => setSelectedCategory('')}
+            className={`pill ${!selectedCategory ? 'pill-active' : ''}`}
+          >All</button>
+          {categories.map(c => (
+            <button
+              key={c.id}
+              onClick={() => setSelectedCategory(c.id)}
+              className={`pill ${selectedCategory === c.id ? 'pill-active' : ''}`}
+            >{c.name}</button>
+          ))}
+        </div>
+
+        {/* Sort + Filters panel */}
+        {showFilters && (
+          <div className="filters-panel animate-fadeIn">
+            <div className="ios-group" style={{ marginBottom: 12 }}>
+              <div className="ios-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>Sort By</span>
+                <div className="ios-segmented">
+                  {[
+                    ['popular', 'Popular'],
+                    ['rating', 'Rating'],
+                    ['price-low', 'Price ↑'],
+                    ['price-high', 'Price ↓'],
+                  ].map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => setSortBy(val)}
+                      className={`ios-segment ${sortBy === val ? 'ios-segment-active' : ''}`}
+                    >{label}</button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="filter-section">
-              <h3 className="filter-title">Price Range</h3>
-              {[
-                ['all', 'All Prices'],
-                ['0-100', 'Under $100'],
-                ['100-250', '$100 – $250'],
-                ['250-500', '$250 – $500'],
-                ['500-99999', '$500+'],
-              ].map(([val, label]) => (
-                <button key={val} onClick={() => setPriceRange(val)} className={`filter-option ${priceRange === val ? 'active' : ''}`}>
-                  {label}
-                </button>
-              ))}
+            <div className="ios-group">
+              <div className="ios-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>Price Range</span>
+                <div className="ios-segmented">
+                  {[
+                    ['all', 'All'],
+                    ['0-100', '<$100'],
+                    ['100-250', '$100-250'],
+                    ['250-500', '$250-500'],
+                    ['500-99999', '$500+'],
+                  ].map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => setPriceRange(val)}
+                      className={`ios-segment ${priceRange === val ? 'ios-segment-active' : ''}`}
+                    >{label}</button>
+                  ))}
+                </div>
+              </div>
             </div>
             {(selectedCategory || priceRange !== 'all' || query) && (
-              <button onClick={clearFilters} className="btn btn-ghost" style={{ width: '100%', marginTop: '16px' }}>
+              <button onClick={clearFilters} className="btn btn-ghost" style={{ width: '100%', marginTop: 12 }}>
                 <X size={14} /> Clear All Filters
               </button>
             )}
-          </aside>
-
-          <div className="browse-grid">
-            {filtered.length > 0 ? (
-              <div className="grid-3">
-                {filtered.map((d, i) => (
-                  <DesignCard key={d.id} design={d} index={i} />
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <p className="empty-icon">🔍</p>
-                <h3>No designs found</h3>
-                <p>Try adjusting your filters or search query</p>
-                <button onClick={clearFilters} className="btn btn-secondary">Clear Filters</button>
-              </div>
-            )}
           </div>
+        )}
+
+        {/* Results Grid */}
+        <div className="browse-results">
+          {filtered.length > 0 ? (
+            <div className="browse-grid">
+              {filtered.map((d, i) => (
+                <DesignCard key={d.id} design={d} index={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p style={{ fontSize: 48, marginBottom: 12 }}>🔍</p>
+              <h3 style={{ fontSize: 'var(--text-xl)', marginBottom: 6 }}>No designs found</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>Try adjusting your filters</p>
+              <button onClick={clearFilters} className="btn btn-primary">Clear Filters</button>
+            </div>
+          )}
         </div>
       </div>
 
       <style jsx>{`
-        .browse-page { padding: var(--space-2xl) 0; }
-        .browse-header { margin-bottom: var(--space-xl); }
-        .browse-title {
-          font-family: var(--font-display);
-          font-size: var(--text-3xl);
-          font-weight: 700;
-          margin-bottom: var(--space-xs);
+        .browse-page { padding-bottom: var(--space-xl); }
+
+        /* iOS nav */
+        .ios-browse-nav {
+          display: none;
         }
-        .browse-subtitle { color: var(--text-muted); }
+
+        .browse-header { margin-bottom: var(--space-md); padding-top: var(--space-lg); }
+
         .browse-toolbar {
           display: flex;
-          gap: var(--space-md);
-          margin-bottom: var(--space-xl);
-          flex-wrap: wrap;
-        }
-        .search-bar {
-          flex: 1;
-          min-width: 280px;
-          display: flex;
+          gap: 8px;
+          margin-bottom: 12px;
           align-items: center;
-          gap: var(--space-sm);
-          background: var(--bg-tertiary);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-md);
-          padding: 0 var(--space-md);
-          transition: border-color var(--transition-fast);
-        }
-        .search-bar:focus-within { border-color: var(--accent); }
-        .search-bar svg { color: var(--text-muted); flex-shrink: 0; }
-        .search-input {
-          flex: 1;
-          border: none;
-          background: none;
-          color: var(--text-primary);
-          padding: var(--space-md) 0;
-          font-size: var(--text-sm);
-          outline: none;
         }
         .search-clear {
           color: var(--text-muted);
           display: flex;
-          padding: 4px;
-          border-radius: 50%;
-          transition: all var(--transition-fast);
+          padding: 2px;
         }
-        .search-clear:hover { background: var(--bg-card-hover); }
-        .toolbar-right { display: flex; gap: var(--space-md); }
-        .sort-select { width: 180px; padding: var(--space-sm) var(--space-md); }
-        .browse-layout {
-          display: grid;
-          grid-template-columns: 240px 1fr;
-          gap: var(--space-xl);
-        }
-        .filters-sidebar {
+        .filter-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: rgba(142, 142, 147, 0.12);
           display: flex;
-          flex-direction: column;
-          gap: var(--space-xl);
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
+          flex-shrink: 0;
+          -webkit-tap-highlight-color: transparent;
         }
-        .filter-section { display: flex; flex-direction: column; gap: 4px; }
-        .filter-title {
-          font-family: var(--font-display);
-          font-weight: 600;
-          font-size: var(--text-sm);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          color: var(--text-primary);
-          margin-bottom: var(--space-sm);
-        }
-        .filter-option {
+        .filter-btn:active { background: var(--bg-tertiary); }
+
+        /* Category pills */
+        .category-pills {
           display: flex;
-          justify-content: space-between;
-          padding: var(--space-sm) var(--space-md);
-          border-radius: var(--radius-sm);
-          font-size: var(--text-sm);
-          color: var(--text-secondary);
-          transition: all var(--transition-fast);
-          text-align: left;
+          gap: 6px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 4px;
+          margin-bottom: var(--space-md);
+          margin: 0 -16px 12px;
+          padding: 0 16px 4px;
         }
-        .filter-option:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-        .filter-option.active {
-          background: rgba(212,168,83,0.1);
-          color: var(--accent);
+        .category-pills::-webkit-scrollbar { display: none; }
+        .pill {
+          padding: 7px 16px;
+          border-radius: var(--radius-full);
+          font-size: var(--text-sm);
           font-weight: 500;
+          white-space: nowrap;
+          background: var(--bg-tertiary);
+          color: var(--text-secondary);
+          transition: all 0.15s ease;
+          flex-shrink: 0;
+          -webkit-tap-highlight-color: transparent;
         }
-        .filter-count { color: var(--text-muted); font-size: var(--text-xs); }
-        .browse-grid { min-width: 0; }
+        .pill:active { transform: scale(0.95); }
+        .pill-active {
+          background: var(--ios-tint);
+          color: white;
+        }
+
+        .filters-panel {
+          margin-bottom: var(--space-md);
+        }
+
+        .browse-results { }
+        .browse-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
         .empty-state {
           text-align: center;
-          padding: var(--space-4xl);
-          color: var(--text-muted);
+          padding: var(--space-2xl);
         }
-        .empty-icon { font-size: 48px; margin-bottom: var(--space-md); }
-        .empty-state h3 { font-size: var(--text-xl); margin-bottom: var(--space-sm); color: var(--text-primary); }
-        .empty-state p { margin-bottom: var(--space-lg); }
-
-        .filter-toggle { display: none; }
 
         @media (max-width: 768px) {
-          .browse-layout { grid-template-columns: 1fr; }
-          .filters-sidebar { display: none; }
-          .filters-sidebar.show {
+          .ios-browse-nav {
             display: flex;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            padding-top: calc(8px + env(safe-area-inset-top, 0px));
+            background: var(--ios-bar-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid var(--ios-separator);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            min-height: 44px;
           }
-          .filter-toggle { display: inline-flex; }
-          .sort-select { width: 140px; }
+        }
+
+        @media (min-width: 769px) {
+          .browse-header { padding-top: var(--space-xl); }
+          .browse-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+          }
+          .category-pills {
+            margin: 0 0 16px;
+            padding: 0 0 4px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .browse-grid { grid-template-columns: repeat(4, 1fr); }
         }
       `}</style>
     </div>

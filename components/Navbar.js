@@ -8,7 +8,6 @@ import { useTheme } from '@/lib/ThemeContext';
 import s from './Navbar.module.css';
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { itemCount } = useCart();
@@ -20,7 +19,7 @@ export default function Navbar() {
       <div className={`container ${s.navbarInner}`}>
         <Link href="/" className={s.navbarLogo}>
           <span className={s.logoIcon}>◆</span>
-          <span>UrbanMarket</span>
+          <span>ArchStop</span>
         </Link>
 
         <div className={s.navbarLinks}>
@@ -36,7 +35,7 @@ export default function Navbar() {
               <Search size={16} />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search designs..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => {
@@ -87,21 +86,8 @@ export default function Navbar() {
             <Link href="/auth" className={`btn btn-primary btn-sm ${s.navSignin}`}>Sign In</Link>
           )}
 
-          <Link href="/dashboard" className={`btn btn-secondary btn-sm ${s.sellBtn}`}>Sell</Link>
-
-          <button className={`${s.navIconBtn} ${s.mobileMenuBtn}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <Link href="/dashboard" className={`btn btn-sm ${s.sellBtn}`}>Sell</Link>
         </div>
-      </div>
-
-      <div className={`${s.mobileMenu} ${menuOpen ? s.mobileMenuOpen : ''}`}>
-        <Link href="/browse" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>Browse All</Link>
-        <Link href="/browse?category=house-plans" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>House Plans</Link>
-        <Link href="/browse?category=3d-models" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>3D Models</Link>
-        <Link href="/browse?category=cad-files" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>CAD Files</Link>
-        <Link href="/dashboard" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>Dashboard</Link>
-        <Link href="/auth" className={s.mobileMenuLink} onClick={() => setMenuOpen(false)}>Sign In</Link>
       </div>
     </nav>
   );

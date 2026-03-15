@@ -2,7 +2,7 @@
 import { use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, ShoppingCart, Download, ArrowLeft, Heart, Share2, CheckCircle } from 'lucide-react';
+import { Star, ShoppingCart, Download, ChevronLeft, Heart, Share2, CheckCircle } from 'lucide-react';
 import { getDesignById, getVendorById, getReviewsByDesign, getDesignsByCategory } from '@/lib/data';
 import { useCart } from '@/lib/CartContext';
 import DesignCard from '@/components/DesignCard';
@@ -28,97 +28,125 @@ export default function DesignDetailPage({ params }) {
 
   return (
     <div className="detail-page">
+      {/* iOS Nav Bar */}
+      <div className="detail-nav">
+        <Link href="/browse" className="ios-nav-back">
+          <ChevronLeft size={22} />
+          <span>Browse</span>
+        </Link>
+        <span className="detail-nav-title">{design.title}</span>
+        <div className="detail-nav-actions">
+          <button className="detail-nav-btn"><Heart size={20} /></button>
+          <button className="detail-nav-btn"><Share2 size={20} /></button>
+        </div>
+      </div>
+
+      {/* Image */}
+      <div className="detail-image-section">
+        <div className="detail-main-image">
+          <Image src={design.image} alt={design.title} width={800} height={560} priority style={{ width: '100%', height: 'auto' }} />
+          {discount > 0 && <span className="sale-badge">{discount}% OFF</span>}
+        </div>
+        <div className="detail-thumbs">
+          {[1, 2, 3].map(i => (
+            <div key={i} className={`thumb ${i === 1 ? 'thumb-active' : ''}`}>
+              <Image src={design.image} alt="" width={80} height={56} style={{ objectFit: 'cover', borderRadius: 8 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="container">
-        <Link href="/browse" className="back-link"><ArrowLeft size={16} /> Back to Browse</Link>
+        {/* Info */}
+        <div className="detail-info">
+          <div className="detail-badges">
+            <span className="badge badge-accent">{design.category.replace(/-/g, ' ')}</span>
+            {design.trending && <span className="badge" style={{ background: 'rgba(255,149,0,0.12)', color: 'var(--warning)' }}>Trending</span>}
+          </div>
 
-        <div className="detail-grid">
-          <div className="detail-images">
-            <div className="main-image-wrap">
-              <Image src={design.image} alt={design.title} width={800} height={560} className="main-image" priority />
-              {discount > 0 && <span className="sale-badge">{discount}% OFF</span>}
+          <h1 className="detail-title">{design.title}</h1>
+
+          <div className="detail-rating-row">
+            <div className="stars-row">
+              {[1,2,3,4,5].map(s => <Star key={s} size={15} fill={s <= Math.round(design.rating) ? 'var(--accent)' : 'none'} stroke="var(--accent)" />)}
             </div>
-            <div className="image-thumbs">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="thumb active">
-                  <Image src={design.image} alt="" width={120} height={80} style={{ objectFit: 'cover', borderRadius: 8 }} />
+            <span className="rating-text">{design.rating} ({design.reviewCount})</span>
+            <span className="downloads-text"><Download size={13} /> {design.downloads}</span>
+          </div>
+
+          <p className="detail-desc">{design.description}</p>
+
+          {/* Specs */}
+          {(design.sqft || design.bedrooms || design.bathrooms) && (
+            <div className="ios-group" style={{ marginTop: 4 }}>
+              {design.sqft && (
+                <div className="ios-row spec-row">
+                  <span className="spec-label">Area</span>
+                  <span className="spec-value">{design.sqft.toLocaleString()} sq ft</span>
                 </div>
-              ))}
+              )}
+              {design.bedrooms && (
+                <div className="ios-row spec-row">
+                  <span className="spec-label">Bedrooms</span>
+                  <span className="spec-value">{design.bedrooms}</span>
+                </div>
+              )}
+              {design.bathrooms && (
+                <div className="ios-row spec-row">
+                  <span className="spec-label">Bathrooms</span>
+                  <span className="spec-value">{design.bathrooms}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Formats */}
+          <div className="formats-row">
+            <span className="formats-label">Formats:</span>
+            {design.formats.map(f => <span key={f} className="badge">{f}</span>)}
+          </div>
+
+          {/* Price + Add to Cart (sticky on mobile) */}
+          <div className="purchase-section">
+            <div className="purchase-price">
+              <span className="price" style={{ fontSize: 'var(--text-3xl)' }}>${design.price}</span>
+              {design.originalPrice && <span className="price-original" style={{ fontSize: 'var(--text-base)' }}>${design.originalPrice}</span>}
+            </div>
+            <button className="btn btn-primary btn-lg purchase-btn" onClick={() => addItem(design)}>
+              <ShoppingCart size={18} /> Add to Cart
+            </button>
+            <div className="guarantee-row">
+              <CheckCircle size={14} color="var(--success)" />
+              <span>Instant download · 30-day guarantee</span>
             </div>
           </div>
 
-          <div className="detail-info">
-            <div className="detail-category">
-              <span className="badge badge-accent">{design.category.replace(/-/g, ' ')}</span>
-              {design.trending && <span className="badge" style={{ background: 'rgba(251,191,36,0.12)', color: 'var(--warning)', borderColor: 'rgba(251,191,36,0.3)' }}>🔥 Trending</span>}
-            </div>
-
-            <h1 className="detail-title">{design.title}</h1>
-
-            <div className="detail-rating">
-              <div className="stars-row">
-                {[1,2,3,4,5].map(s => <Star key={s} size={16} fill={s <= Math.round(design.rating) ? 'var(--accent)' : 'none'} stroke="var(--accent)" />)}
-              </div>
-              <span className="rating-text">{design.rating} ({design.reviewCount} reviews)</span>
-              <span className="downloads-text"><Download size={14} /> {design.downloads} downloads</span>
-            </div>
-
-            <p className="detail-desc">{design.description}</p>
-
-            <div className="detail-specs">
-              {design.sqft && <div className="spec"><span className="spec-label">Area</span><span className="spec-value">{design.sqft.toLocaleString()} sq ft</span></div>}
-              {design.bedrooms && <div className="spec"><span className="spec-label">Bedrooms</span><span className="spec-value">{design.bedrooms}</span></div>}
-              {design.bathrooms && <div className="spec"><span className="spec-label">Bathrooms</span><span className="spec-value">{design.bathrooms}</span></div>}
-            </div>
-
-            <div className="detail-formats">
-              <span className="formats-label">File Formats:</span>
-              {design.formats.map(f => <span key={f} className="badge">{f}</span>)}
-            </div>
-
-            <div className="detail-price-section">
-              <div className="detail-price">
-                <span className="price" style={{ fontSize: 'var(--text-3xl)' }}>${design.price}</span>
-                {design.originalPrice && <span className="price-original" style={{ fontSize: 'var(--text-lg)' }}>${design.originalPrice}</span>}
-              </div>
-              <div className="detail-actions">
-                <button className="btn btn-primary btn-lg" onClick={() => addItem(design)} style={{ flex: 1 }}>
-                  <ShoppingCart size={18} /> Add to Cart
-                </button>
-                <button className="btn btn-secondary"><Heart size={18} /></button>
-                <button className="btn btn-secondary"><Share2 size={18} /></button>
-              </div>
-            </div>
-
-            <div className="detail-guarantee">
-              <CheckCircle size={16} color="var(--success)" />
-              <span>Instant download after purchase · 30-day money-back guarantee</span>
-            </div>
-
-            {vendor && (
-              <Link href={`/vendor/${vendor.id}`} className="vendor-card-inline glass-card">
-                <span className="vendor-avatar-med">{vendor.avatar}</span>
-                <div className="vendor-inline-info">
-                  <span className="vendor-inline-name">{vendor.name} {vendor.verified && '✓'}</span>
-                  <span className="vendor-inline-meta">{vendor.location} · {vendor.designCount} designs</span>
+          {/* Vendor */}
+          {vendor && (
+            <Link href={`/vendor/${vendor.id}`} className="ios-group vendor-inline" style={{ display: 'flex', marginTop: 8 }}>
+              <div className="ios-row" style={{ width: '100%' }}>
+                <span style={{ fontSize: 32 }}>{vendor.avatar}</span>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontWeight: 600, display: 'block' }}>{vendor.name} {vendor.verified && '✓'}</span>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{vendor.location} · {vendor.designCount} designs</span>
                 </div>
-                <div className="vendor-inline-rating">
-                  <Star size={14} fill="var(--accent)" stroke="var(--accent)" /> {vendor.rating}
-                </div>
-              </Link>
-            )}
-          </div>
+                <ChevronLeft size={18} color="var(--text-muted)" style={{ opacity: 0.5, transform: 'rotate(180deg)' }} />
+              </div>
+            </Link>
+          )}
         </div>
 
+        {/* Reviews */}
         {reviews.length > 0 && (
-          <section className="reviews-section section">
-            <h2 className="section-title">Customer Reviews</h2>
-            <div className="reviews-list">
+          <section className="section">
+            <h2 className="section-title">Reviews</h2>
+            <div className="ios-group" style={{ marginTop: 8 }}>
               {reviews.map(r => (
-                <div key={r.id} className="review-card glass-card">
+                <div key={r.id} className="ios-row review-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
                   <div className="review-header">
                     <span className="review-user">{r.user}</span>
                     <div className="review-stars">
-                      {[1,2,3,4,5].map(s => <Star key={s} size={12} fill={s <= r.rating ? 'var(--accent)' : 'none'} stroke="var(--accent)" />)}
+                      {[1,2,3,4,5].map(s => <Star key={s} size={11} fill={s <= r.rating ? 'var(--accent)' : 'none'} stroke="var(--accent)" />)}
                     </div>
                     <span className="review-date">{r.date}</span>
                   </div>
@@ -129,154 +157,201 @@ export default function DesignDetailPage({ params }) {
           </section>
         )}
 
+        {/* Related */}
         {related.length > 0 && (
           <section className="section">
-            <div className="section-header">
-              <h2 className="section-title">Related Designs</h2>
-            </div>
-            <div className="grid-4">
-              {related.map((d, i) => <DesignCard key={d.id} design={d} index={i} />)}
+            <h2 className="section-title">Related Designs</h2>
+            <div className="related-scroll" style={{ marginTop: 12 }}>
+              {related.map((d, i) => (
+                <div key={d.id} className="related-card">
+                  <DesignCard design={d} index={i} />
+                </div>
+              ))}
             </div>
           </section>
         )}
       </div>
 
       <style jsx>{`
-        .detail-page { padding: var(--space-xl) 0; }
-        .back-link {
-          display: inline-flex;
-          align-items: center;
-          gap: var(--space-sm);
-          color: var(--text-muted);
-          font-size: var(--text-sm);
-          margin-bottom: var(--space-xl);
-          transition: color var(--transition-fast);
+        .detail-page { padding-bottom: var(--space-2xl); }
+
+        /* iOS nav */
+        .detail-nav {
+          display: none;
         }
-        .back-link:hover { color: var(--accent); }
-        .detail-grid {
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: var(--space-2xl);
-        }
-        .main-image-wrap {
+
+        /* Image */
+        .detail-image-section { margin-bottom: var(--space-md); }
+        .detail-main-image {
           position: relative;
-          border-radius: var(--radius-lg);
           overflow: hidden;
         }
-        .main-image-wrap :global(img) { width: 100%; height: auto; display: block; }
         .sale-badge {
           position: absolute;
-          top: var(--space-md);
-          left: var(--space-md);
-          background: var(--error);
+          top: 12px;
+          left: 12px;
+          background: #ff3b30;
           color: white;
           font-weight: 700;
           font-size: var(--text-sm);
-          padding: 4px 14px;
+          padding: 4px 12px;
           border-radius: var(--radius-full);
         }
-        .image-thumbs {
+        .detail-thumbs {
           display: flex;
-          gap: var(--space-sm);
-          margin-top: var(--space-md);
+          gap: 8px;
+          padding: 8px 16px;
         }
         .thumb {
-          border-radius: var(--radius-md);
+          border-radius: 8px;
           overflow: hidden;
+          opacity: 0.5;
           border: 2px solid transparent;
-          opacity: 0.6;
-          transition: all var(--transition-fast);
-          cursor: pointer;
         }
-        .thumb.active, .thumb:hover { border-color: var(--accent); opacity: 1; }
-        .detail-info { display: flex; flex-direction: column; gap: var(--space-md); }
-        .detail-category { display: flex; gap: var(--space-sm); text-transform: capitalize; flex-wrap: wrap; }
+        .thumb-active { opacity: 1; border-color: var(--ios-tint); }
+
+        /* Info */
+        .detail-info { display: flex; flex-direction: column; gap: 12px; }
+        .detail-badges { display: flex; gap: 6px; text-transform: capitalize; flex-wrap: wrap; }
         .detail-title {
           font-family: var(--font-display);
-          font-size: var(--text-3xl);
+          font-size: var(--text-2xl);
           font-weight: 700;
-          line-height: 1.2;
+          line-height: 1.15;
+          letter-spacing: -0.02em;
         }
-        .detail-rating {
+        .detail-rating-row {
           display: flex;
           align-items: center;
-          gap: var(--space-md);
+          gap: 10px;
           flex-wrap: wrap;
         }
         .stars-row { display: flex; gap: 2px; }
         .rating-text { font-size: var(--text-sm); color: var(--text-secondary); }
-        .downloads-text { display: flex; align-items: center; gap: 4px; font-size: var(--text-sm); color: var(--text-muted); }
-        .detail-desc { color: var(--text-secondary); line-height: 1.7; }
-        .detail-specs {
-          display: flex;
-          gap: var(--space-lg);
-          padding: var(--space-md);
-          background: var(--bg-tertiary);
-          border-radius: var(--radius-md);
-        }
-        .spec { display: flex; flex-direction: column; gap: 2px; }
-        .spec-label { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .downloads-text { display: flex; align-items: center; gap: 3px; font-size: var(--text-sm); color: var(--text-muted); }
+        .detail-desc { color: var(--text-secondary); line-height: 1.55; font-size: var(--text-base); }
+
+        .spec-row { justify-content: space-between; }
+        .spec-label { color: var(--text-muted); font-size: var(--text-base); }
         .spec-value { font-weight: 600; }
-        .detail-formats {
+
+        .formats-row {
           display: flex;
           align-items: center;
-          gap: var(--space-sm);
+          gap: 6px;
           flex-wrap: wrap;
         }
         .formats-label { font-size: var(--text-sm); color: var(--text-muted); }
-        .detail-price-section {
+
+        /* Purchase */
+        .purchase-section {
           padding: var(--space-lg);
-          background: var(--bg-secondary);
-          border: 1px solid var(--border);
+          background: var(--bg-card);
           border-radius: var(--radius-lg);
+          box-shadow: var(--ios-card-shadow);
         }
-        .detail-price {
+        .purchase-price {
           display: flex;
           align-items: baseline;
-          gap: var(--space-sm);
-          margin-bottom: var(--space-md);
+          gap: 8px;
+          margin-bottom: 12px;
         }
-        .detail-actions { display: flex; gap: var(--space-sm); }
-        .detail-guarantee {
+        .purchase-btn { width: 100%; }
+        .guarantee-row {
           display: flex;
           align-items: center;
-          gap: var(--space-sm);
-          font-size: var(--text-sm);
+          justify-content: center;
+          gap: 6px;
+          font-size: var(--text-xs);
           color: var(--text-muted);
+          margin-top: 12px;
         }
-        .vendor-card-inline {
-          display: flex;
-          align-items: center;
-          gap: var(--space-md);
-          padding: var(--space-md);
-        }
-        .vendor-avatar-med { font-size: 36px; }
-        .vendor-inline-info { flex: 1; }
-        .vendor-inline-name { font-weight: 600; display: block; }
-        .vendor-inline-meta { font-size: var(--text-xs); color: var(--text-muted); }
-        .vendor-inline-rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-weight: 600;
-        }
-        .reviews-section { }
-        .reviews-list { display: flex; flex-direction: column; gap: var(--space-md); }
-        .review-card { padding: var(--space-lg); }
+
+        .vendor-inline { text-decoration: none; }
+
+        /* Reviews */
         .review-header {
           display: flex;
           align-items: center;
-          gap: var(--space-md);
-          margin-bottom: var(--space-sm);
+          gap: 8px;
         }
-        .review-user { font-weight: 600; }
-        .review-stars { display: flex; gap: 2px; }
+        .review-user { font-weight: 600; font-size: var(--text-sm); }
+        .review-stars { display: flex; gap: 1px; }
         .review-date { font-size: var(--text-xs); color: var(--text-muted); margin-left: auto; }
-        .review-text { color: var(--text-secondary); line-height: 1.6; }
+        .review-text { color: var(--text-secondary); line-height: 1.5; font-size: var(--text-sm); }
+
+        /* Related scroll */
+        .related-scroll {
+          display: flex;
+          gap: 12px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 4px;
+          margin: 0 -16px;
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .related-scroll::-webkit-scrollbar { display: none; }
+        .related-card {
+          flex: 0 0 220px;
+        }
 
         @media (max-width: 768px) {
-          .detail-grid { grid-template-columns: 1fr; }
-          .detail-specs { flex-wrap: wrap; }
+          .detail-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            padding-top: calc(8px + env(safe-area-inset-top, 0px));
+            background: var(--ios-bar-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid var(--ios-separator);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            min-height: 44px;
+          }
+          .detail-nav-title {
+            font-size: var(--text-base);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .detail-nav-actions {
+            display: flex;
+            gap: 4px;
+          }
+          .detail-nav-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ios-tint);
+          }
+        }
+
+        @media (min-width: 769px) {
+          .detail-page { padding-top: var(--space-xl); }
+          .detail-image-section {
+            max-width: 600px;
+            margin: 0 auto var(--space-xl);
+          }
+          .detail-main-image { border-radius: var(--radius-lg); overflow: hidden; }
+          .detail-info { max-width: 600px; margin: 0 auto; }
+          .detail-title { font-size: var(--text-3xl); }
+          .related-scroll {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            overflow: visible;
+            margin: 0;
+            padding: 0;
+          }
+          .related-card { flex: none; }
         }
       `}</style>
     </div>
