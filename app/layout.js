@@ -2,6 +2,8 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TabBar from '@/components/TabBar';
+import DemoProtection from '@/components/DemoProtection';
+import DemoWatermark from '@/components/DemoWatermark';
 import { CartProvider } from '@/lib/CartContext';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
@@ -46,6 +48,8 @@ export default function RootLayout({ children }) {
               </main>
               <Footer />
               <TabBar />
+              <DemoProtection />
+              <DemoWatermark />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
